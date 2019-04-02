@@ -1,9 +1,27 @@
+# section 1 load all the necessary modules and packages
+import pandas as pd
+import numpy as np
+import re as re
+import datetime
+import matplotlib.pyplot as plt
+import glob
+import os
+import netCDF4 as nc4
+import time
+import xarray as xr
+import fiona
+import shapely
+import geopandas
+import shutil
+from shapely.geometry import Polygon
+from collections import OrderedDict
+
 def lat_lon_2D (lat, lon):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 GPL3
+    @ lisence:                 GPL3
     
     This function gets lat and lon in one dimension and returns a 2D matrix of that lat and lon
     input for creating shapefile
@@ -102,7 +120,7 @@ def NetCDF_SHP_lat_lon (name_of_nc):
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @license:                  GPL
+    @lisence:                  GPL3
     
     This function reads a nc file with 1D or 2D lat and lon
         name_of_nc: name of the nc file and 
@@ -167,7 +185,6 @@ def interesection_shp (shp_1, shp_2):
     for i in range(len(column_names)):
         shp_2 = shp_2.rename(columns={column_names[i]: 'S_2_'+column_names[i]})
     
-    
     # Caclulating the area for shp1
     for index, row in shp_1.iterrows():
         shp_1.loc[index, 'S1_AREA'] = shp_1.area[index]
@@ -178,7 +195,7 @@ def interesection_shp (shp_1, shp_2):
         shp_2.loc[index, 'S2_AREA'] = shp_2.area[index]
         shp_2.loc[index, 'S2_ID'] = index + 1.00
     
-    
+    # making intesection
     result = geopandas.overlay(shp_1, shp_2, how='intersection')
     
     # Caclulating the area for shp2
@@ -188,7 +205,85 @@ def interesection_shp (shp_1, shp_2):
         result.loc[index, 'AREA_PER_2'] = result.area[index]/result.loc[index, 'S2_AREA']
     
     # normalizing the intersected area
-    # to be developed
+    # to be done
     
     #return shp_1, shp_2
     return result
+
+def read_value_lat_lon_nc (lat, lon, name_of_nc,name_of_variable,name_of_time_dim):
+    """
+    @ author:                  Shervan Gharari
+    @ Github:                  ./shervangharari/repository
+    @ author's email id:       sh.gharari@gmail.com
+    @ license:                 GPL3
+    
+    This function funcitons read different grids and sum them up based on the weight provided to aggregate them over a
+    larger area
+    IMPORTANT NOTICE: the function assume that the dimensions are lat and lon, it should be changed accordingly
+    input:
+        lon: lon value [1,]
+        lat: lat value [1,]
+        name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
+        name_of_variable: name of the varibale, string
+        name_of_time_dim: name of time dimension, string
+    output:
+        agg_data: a 1-D array of data
+    """
+    names_all = glob.glob(name_of_nc)
+    names_all.sort
+    print(names_all)
+    data = []
+    
+    # for to read on lat and lon given
+
+    for names in names_all:
+        # open nc file to read
+        ncid = nc4.Dataset(names, 'r')
+        # getting the length of time dimnesion
+        time_steps = ncid.dimensions[name_of_time_dim].size
+        print(time_steps)
+        # opening the data set by xr package
+        da = xr.open_dataset(names,decode_times=False)
+        # read the data given a lat, lon, and varibale names, lat and lon should be called lat and lon in the file
+        data_temp = da[name_of_variable].sel(latitude=lat, longitude=lon, method='nearest')
+        print(data_temp)
+        # put the read data into the data_temp
+        data_temp = np.array(data_temp)
+        data_temp = data_temp.reshape((time_steps,))
+        print(data_temp)
+        # append the data_temp
+        if 'data' in globals():
+            data = np.append(data, data_temp)
+        else:
+            data = data_temp
+    return data
+            
+def area_ave (lat, lon, w, name_of_nc,name_of_variable,name_of_time_dim):
+    """
+    @ author:                  Shervan Gharari
+    @ Github:                  ./shervangharari/repository
+    @ author's email id:       sh.gharari@gmail.com
+    @ license:                 GPL3
+    
+    This function funcitons read different grids and sum them up based on the weight provided to aggregate them over a
+    larger area
+    IMPORTANT NOTICE: the function assume that the dimensions are lat and lon, it should be changed accordingly
+    input:
+        lon: lon value [n,]
+        lat: lat value [n,]
+        w: weight [n,]
+        name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
+        name_of_variable: name of the varibale, string
+        name_of_time_dim: name of time dimension, string
+    output:
+        agg_data: a 1-D array of data
+    """
+    for i in range(0, len(lat)):
+        data_temp = read_value_lat_lon_nc (lat[i], lon[i], name_of_nc,name_of_variable,name_of_time_dim)
+        if i is 0:
+            data = data_temp*w[i]
+        else:
+            data = data + data_temp*w[i]
+    return data
+    
+    
