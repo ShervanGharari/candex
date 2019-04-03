@@ -13,7 +13,7 @@ def lat_lon_2D(lat, lon):
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 GPL3
+    @ license:                 Apache2
 
     This function gets lat and lon in one dimension and returns a 2D matrix of that lat and lon
     input for creating shapefile
@@ -44,7 +44,7 @@ def lat_lon_SHP(lat, lon, box):
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @license:                  GPL3
+    @license:                  Apache2
 
     This function gets a 2-D lat and lon and return the shapefile given the lat and lon matrices
     input:
@@ -119,7 +119,7 @@ def NetCDF_SHP_lat_lon(name_of_nc, box, name_of_lat, name_of_lon):
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @lisence:                  GPL3
+    @lisence:                  Apache2
 
     This function reads a nc file with 1D or 2D lat and lon
         name_of_nc: name of the nc file and
@@ -148,7 +148,7 @@ def interesection_shp(shp_1, shp_2):
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 GPL3
+    @ license:                 Apache2
 
     This function finds the intersection of two shapefiles and calculates their intersection shapes and area and the
     shared percentages.
@@ -215,7 +215,7 @@ def read_value_lat_lon_nc(lat, lon, name_of_nc, name_of_variable,
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 GPL3
+    @ license:                 Apache2
 
     This function funcitons read different grids and sum them up based on the
     weight provided to aggregate them over a larger area
@@ -270,7 +270,7 @@ def area_ave(lat, lon, w, name_of_nc, name_of_variable, name_of_time_dim,
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 GPL3
+    @ license:                 Apache2
 
     This function funcitons read different grids and sum them up based on the
     weight provided to aggregate them over a larger area
@@ -304,7 +304,7 @@ def box(name_of_shp):
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 GPL3
+    @ license:                 Apache2
 
     This function funcitons calculates the bounding box of a single shapefile
     input:
