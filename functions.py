@@ -53,7 +53,7 @@ def lat_lon_2D (lat, lon):
     # return lat_2D and lon_2D
     return lat_2D, lon_2D
 
-def lat_lon_SHP (lat, lon):
+def lat_lon_SHP (lat, lon, box):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -64,6 +64,7 @@ def lat_lon_SHP (lat, lon):
     input:
         lat: the 2D matrix of lat_2D [n,m,]
         lon: the 2D matrix of lon_2D [n,m,]
+        box: a 1D array [minlat, maxlat, minlon, maxlon]
     output:
         result: a shapefile with (n-2)*(m-2) elements depicting the provided 2-D lat and lon values
     """
@@ -79,43 +80,45 @@ def lat_lon_SHP (lat, lon):
         
         for j in range(1,idx[1]-1):
             
-            # Creating the lat of the shapefile
-            Lat_Up = (lat[i-1,j]+lat[i,j])/2
-            Lat_UpRright = (lat[i-1,j]+lat[i-1,j+1]+lat[i,j+1]+lat[i,j])/4
-            Lat_Right = (lat[i,j+1]+lat[i,j])/2
-            Lat_LowRight = (lat[i,j+1]+lat[i+1,j+1]+lat[i+1,j]+lat[i,j])/4;
-            Lat_Low = (lat[i+1,j]+lat[i,j])/2;
-            Lat_LowLeft = (lat[i,j-1]+lat[i+1,j-1]+lat[i+1,j]+lat[i,j])/4;
-            Lat_Left = (lat[i,j-1]+lat[i,j])/2;
-            Lat_UpLeft = (lat[i-1,j-1]+lat[i-1,j]+lat[i,j-1]+lat[i,j])/4;
+            if lat [i,j] > box[0] and lat [i,j] < box[1] and lon [i,j] > box[2] and lon [i,j] < box[3]:
             
-            # Creating the lon of the shapefile
-            Lon_Up = (lon[i-1,j]+lon[i,j])/2;
-            Lon_UpRright = (lon[i-1,j]+lon[i-1,j+1]+lon[i,j+1]+lon[i,j])/4;
-            Lon_Right = (lon[i,j+1]+lon[i,j])/2;
-            Lon_LowRight = (lon[i,j+1]+lon[i+1,j+1]+lon[i+1,j]+lon[i,j])/4;
-            Lon_Low = (lon[i+1,j]+lon[i,j])/2;
-            Lon_LowLeft = (lon[i,j-1]+lon[i+1,j-1]+lon[i+1,j]+lon[i,j])/4;
-            Lon_Left = (lon[i,j-1]+lon[i,j])/2;
-            Lon_UpLeft = (lon[i-1,j-1]+lon[i-1,j]+lon[i,j-1]+lon[i,j])/4;
+                # Creating the lat of the shapefile
+                Lat_Up = (lat[i-1,j]+lat[i,j])/2
+                Lat_UpRright = (lat[i-1,j]+lat[i-1,j+1]+lat[i,j+1]+lat[i,j])/4
+                Lat_Right = (lat[i,j+1]+lat[i,j])/2
+                Lat_LowRight = (lat[i,j+1]+lat[i+1,j+1]+lat[i+1,j]+lat[i,j])/4;
+                Lat_Low = (lat[i+1,j]+lat[i,j])/2;
+                Lat_LowLeft = (lat[i,j-1]+lat[i+1,j-1]+lat[i+1,j]+lat[i,j])/4;
+                Lat_Left = (lat[i,j-1]+lat[i,j])/2;
+                Lat_UpLeft = (lat[i-1,j-1]+lat[i-1,j]+lat[i,j-1]+lat[i,j])/4;
             
-            # craeting the polygongiven the lat and lon
-            polys = Polygon([(Lon_Up,Lat_Up),(Lon_UpRright,Lat_UpRright),(Lon_Right,Lat_Right),(Lon_LowRight,Lat_LowRight),\
-                    (Lon_Low,Lat_Low),(Lon_LowLeft,Lat_LowLeft),(Lon_Left,Lat_Left),(Lon_UpLeft,Lat_UpLeft), (Lon_Up,Lat_Up)])
+                # Creating the lon of the shapefile
+                Lon_Up = (lon[i-1,j]+lon[i,j])/2;
+                Lon_UpRright = (lon[i-1,j]+lon[i-1,j+1]+lon[i,j+1]+lon[i,j])/4;
+                Lon_Right = (lon[i,j+1]+lon[i,j])/2;
+                Lon_LowRight = (lon[i,j+1]+lon[i+1,j+1]+lon[i+1,j]+lon[i,j])/4;
+                Lon_Low = (lon[i+1,j]+lon[i,j])/2;
+                Lon_LowLeft = (lon[i,j-1]+lon[i+1,j-1]+lon[i+1,j]+lon[i,j])/4;
+                Lon_Left = (lon[i,j-1]+lon[i,j])/2;
+                Lon_UpLeft = (lon[i-1,j-1]+lon[i-1,j]+lon[i,j-1]+lon[i,j])/4;
             
-            # putting the polygone into the shape file
-            result.loc[m, 'geometry'] = polys
-            result.loc[m, 'ID'] = m + 1.00 # inserting the couter
-            result.loc[m, 'lat'] = lat[i,j] # inserting the lat
-            result.loc[m, 'lon'] = lon[i,j] # inserting the lon
+                # craeting the polygongiven the lat and lon
+                polys = Polygon([(Lon_Up,Lat_Up),(Lon_UpRright,Lat_UpRright),(Lon_Right,Lat_Right),(Lon_LowRight,Lat_LowRight),\
+                        (Lon_Low,Lat_Low),(Lon_LowLeft,Lat_LowLeft),(Lon_Left,Lat_Left),(Lon_UpLeft,Lat_UpLeft), (Lon_Up,Lat_Up)])
             
-            # adding one to the couter
-            m = m + 1.00
+                # putting the polygone into the shape file
+                result.loc[m, 'geometry'] = polys
+                result.loc[m, 'ID'] = m + 1.00 # inserting the couter
+                result.loc[m, 'lat'] = lat[i,j] # inserting the lat
+                result.loc[m, 'lon'] = lon[i,j] # inserting the lon
+            
+                # adding one to the couter
+                m = m + 1.00
     
     # returning the result
     return result
 
-def NetCDF_SHP_lat_lon (name_of_nc):
+def NetCDF_SHP_lat_lon (name_of_nc,box):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -133,13 +136,17 @@ def NetCDF_SHP_lat_lon (name_of_nc):
     # getting the name of the dimentions for lat and lon (they should be the similar)
     lat_dimensions = ncid.variables['lat'].dimensions
     lon_dimensions = ncid.variables['lon'].dimensions
+    #lat_dimensions = ncid.variables['latitude'].dimensions
+    #lon_dimensions = ncid.variables['longitude'].dimensions
     # putting the names into a np.array
     lat_dimensions = np.array(lat_dimensions)
     lon_dimensions = np.array(lon_dimensions)
     
     # reading the lat and lon and converting them to np.array
+    # lat = ncid.variables['latitude'][:]
     lat = ncid.variables['lat'][:]
     lat = np.array(lat)
+    # lon = ncid.variables['longitude'][:]
     lon = ncid.variables['lon'][:]
     lon = np.array(lon)
     
@@ -148,7 +155,7 @@ def NetCDF_SHP_lat_lon (name_of_nc):
         lat, lon = lat_lon_2D (lat, lon)
     
     # creating the shapefile
-    result = lat_lon_SHP (lat, lon)
+    result = lat_lon_SHP (lat, lon,box)
     
     return result
         
@@ -163,10 +170,10 @@ def interesection_shp (shp_1, shp_2):
     This function finds the intersection of two shapefiles and calculates their intersection shapes and area and the
     shared percentages.
     input:
-        shp_1: the 2D matrix of lat_2D [n,m,]
-        shp_2: the 2D matrix of lon_2D [n,m,]
+        shp_1: the first shapefile
+        shp_2: the second shapefile
     output:
-        result: a shapefile with (n-2)*(m-2) elements depicting the provided 2-D lat and lon values
+        result: a shapefile which is the intersect of shp_1 shp_2
     """
     # Calculating the area of every shapefile (both should be in degree or meters)
     column_names = shp_1.columns
@@ -245,7 +252,8 @@ def read_value_lat_lon_nc (lat, lon, name_of_nc,name_of_variable,name_of_time_di
         # opening the data set by xr package
         da = xr.open_dataset(names,decode_times=False)
         # read the data given a lat, lon, and varibale names, lat and lon should be called lat and lon in the file
-        data_temp = da[name_of_variable].sel(latitude=lat, longitude=lon, method='nearest')
+        #data_temp = da[name_of_variable].sel(latitude=lat, longitude=lon, method='nearest')
+        data_temp = da[name_of_variable].sel(lat=lat, lon=lon, method='nearest')
         print(data_temp)
         # put the read data into the data_temp
         data_temp = np.array(data_temp)
@@ -286,4 +294,22 @@ def area_ave (lat, lon, w, name_of_nc,name_of_variable,name_of_time_dim):
             data = data + data_temp*w[i]
     return data
     
+def box (name_of_shp):
+    """
+    @ author:                  Shervan Gharari
+    @ Github:                  ./shervangharari/repository
+    @ author's email id:       sh.gharari@gmail.com
+    @ license:                 GPL3
+    
+    This function funcitons calculates the bounding box of a single shapefile
+    input:
+        name_of_shp: full or part of shp file(s) name including .shp, string, example 'XXX/*01*.shp'
+    output:
+        box: which return [minlat maxlat minlon maxlon]
+    """
+    shp = geopandas.read_file('C:/Users/SHERVAN/Dropbox/drive-download-20190402T144414Z-001/meuse_hydrosheds.shp')
+    shp['geometry'] = shp.geometry.buffer(1) # adding a buffer of 1 degree
+    A = shp.bounds
+    box = np.array ([A.miny, A.maxy, A.minx, A.maxx])
+    return box
     
