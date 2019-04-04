@@ -143,7 +143,7 @@ def NetCDF_SHP_lat_lon(name_of_nc, box, name_of_lat, name_of_lon):
     return result
 
 
-def interesection_shp(shp_1, shp_2):
+def intersection_shp(shp_1, shp_2):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -289,7 +289,7 @@ def area_ave(lat, lon, w, name_of_nc, name_of_variable, name_of_time_dim,
         agg_data: a 1-D array of data
     """
     for i in range(0, len(lat)):
-        data_temp = read_value_lat_lon_nc(lat[i], lon[i], name_of_nc,
+        data_temp = read_value_lat_lon_nc(lat.iloc[i], lon.iloc[i], name_of_nc,
                                           name_of_variable, name_of_time_dim,
                                           name_of_lat, name_of_lon)
         if i is 0:
@@ -327,7 +327,7 @@ def Write_NetCDF (nc_file_name, variable_data, variable_name, varibale_unit, var
     @ Github:                  ./shervangharari/repository
     @ author's email id:       sh.gharari@gmail.com
     @ license:                 Apache2
-    
+
     This function takes in a single array of data with an ID and it lat and lon value and save it as nc file
     input:
         nc_file_name: the name of the nc file, string
@@ -341,9 +341,9 @@ def Write_NetCDF (nc_file_name, variable_data, variable_name, varibale_unit, var
         variable_time: data varibale time
         starting_date_string: the time reseference, string, 'days since 1900-01-01 00:00'
     """
-    
+
     with nc4.Dataset(nc_file_name, "w", format="NETCDF4") as ncid:
-    
+
         dimid_N = ncid.createDimension('n',1) # only write one variable
         dimid_T = ncid.createDimension('time',variable_time.size)
 

@@ -3,8 +3,11 @@ message: If you use this software, please cite it as below.
 authors:
   - family-names: Gharari
     given-names: Shervan
-    orcid: https://orcid.org/0000-0003-4925-7248
-title: candie
+    orcid: https://orcid.org/0000-0002-5358-5714
+  - family-names: Weel
+    given-names: Berend
+    orcid: https://orcid.org/0000-0002-9693-9332
+title: candex
 version: 0.1.0
 doi:
 date-released: 2019-04-30

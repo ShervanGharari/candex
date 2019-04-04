@@ -1,10 +1,10 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='candie',
+    name='candex',
     version='0.1.0',
     license='Apache Software License',
-    author='Shervan Gharari',
+    author=('Shervan Gharari', 'Berend Weel'),
     install_requires=[
         'numpy',
         'geopandas',
