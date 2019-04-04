@@ -1,7 +1,9 @@
 # section 1 load all the necessary modules and packages
 import glob
+import time
 
 import geopandas
+import netCDF4 as nc4
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -319,9 +321,10 @@ def box(name_of_shp):
     box = np.array([A.miny, A.maxy, A.minx, A.maxx])
     return box
 
-def Write_NetCDF (nc_file_name, variable_data, variable_name, varibale_unit, varibale_long_name,
-                  lon_data, lat_data, ID_data,
-                  variable_time, starting_date_string):
+
+def write_netcdf(nc_file_name, variable_data, variable_name, varibale_unit,
+                 varibale_long_name, lon_data, lat_data, ID_data,
+                 variable_time, starting_date_string):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -344,49 +347,51 @@ def Write_NetCDF (nc_file_name, variable_data, variable_name, varibale_unit, var
 
     with nc4.Dataset(nc_file_name, "w", format="NETCDF4") as ncid:
 
-        dimid_N = ncid.createDimension('n',1) # only write one variable
-        dimid_T = ncid.createDimension('time',variable_time.size)
+        dimid_N = ncid.createDimension('n', 1)  # only write one variable
+        dimid_T = ncid.createDimension('time', variable_time.size)
 
         # Variables
-        time_varid = ncid.createVariable('time','i4',('time',))
+        time_varid = ncid.createVariable('time', 'i4', ('time', ))
         # Attributes
-        time_varid.long_name     = 'time'
-        time_varid.units         = starting_date_string # e.g. 'days since 1900-01-01 00:00'
-        time_varid.calendar      = 'gregorian'
+        time_varid.long_name = 'time'
+        time_varid.units = starting_date_string  # e.g. 'days since 1900-01-01 00:00'
+        time_varid.calendar = 'gregorian'
         time_varid.standard_name = 'time'
-        time_varid.axis          = 'T'
+        time_varid.axis = 'T'
         # Write data
         time_varid[:] = variable_time
 
         # Variables
-        lat_varid = ncid.createVariable('lat','f8',('n',))
-        lon_varid = ncid.createVariable('lon','f8',('n',))
-        ID_varid = ncid.createVariable('ID','f8',('n',))
+        lat_varid = ncid.createVariable('lat', 'f8', ('n', ))
+        lon_varid = ncid.createVariable('lon', 'f8', ('n', ))
+        ID_varid = ncid.createVariable('ID', 'f8', ('n', ))
         # Attributes
-        lat_varid.long_name      = 'latitude'
-        lon_varid.long_name      = 'longitude'
-        ID_varid.long_name       = 'ID'
-        lat_varid.units          = 'degrees_north'
-        lon_varid.units          = 'degrees_east'
-        ID_varid.units           = '1'
-        lat_varid.standard_name  = 'latitude'
-        lon_varid.standard_name  = 'longitude'
+        lat_varid.long_name = 'latitude'
+        lon_varid.long_name = 'longitude'
+        ID_varid.long_name = 'ID'
+        lat_varid.units = 'degrees_north'
+        lon_varid.units = 'degrees_east'
+        ID_varid.units = '1'
+        lat_varid.standard_name = 'latitude'
+        lon_varid.standard_name = 'longitude'
         # Write data
         lat_varid[:] = lat_data
         lon_varid[:] = lon_data
         ID_varid[:] = ID_data
 
-
         # Variable
-        data_varid     = ncid.createVariable(variable_name,    'f8',('n','time',))
+        data_varid = ncid.createVariable(variable_name, 'f8', (
+            'n',
+            'time',
+        ))
         # Attributes
-        data_varid.long_name       = varibale_long_name
-        data_varid.units           = varibale_unit
+        data_varid.long_name = varibale_long_name
+        data_varid.units = varibale_unit
         # Write data
-        data_varid[:]     = variable_data
+        data_varid[:] = variable_data
 
         ##
         ncid.Conventions = 'CF-1.6'
-        ncid.License     = 'The data were written by Shervan Gharari. Under Apache2.'
-        ncid.history     = 'Created ' + time.ctime(time.time())
-        ncid.source      = 'Written by script from library of Shervan Gharari (https://github.com/ShervanGharari).'
+        ncid.License = 'The data were written by Shervan Gharari. Under Apache2.'
+        ncid.history = 'Created ' + time.ctime(time.time())
+        ncid.source = 'Written by script from library of Shervan Gharari (https://github.com/ShervanGharari).'
