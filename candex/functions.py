@@ -295,9 +295,9 @@ def area_ave(lat, lon, w, name_of_nc, name_of_variable, name_of_time_dim,
                                           name_of_variable, name_of_time_dim,
                                           name_of_lat, name_of_lon)
         if i is 0:
-            data = data_temp * w[i]
+            data = data_temp * w.iloc[i]
         else:
-            data = data + data_temp * w[i]
+            data = data + data_temp * w.iloc[i]
     return data
 
 
