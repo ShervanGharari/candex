@@ -1,7 +1,6 @@
 # section 1 load all the necessary modules and packages
 import glob
 import time
-
 import geopandas
 import netCDF4 as nc4
 import numpy as np
