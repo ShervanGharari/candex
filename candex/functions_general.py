@@ -16,7 +16,7 @@ def lat_lon_2D(lat, lon):
     @ author's email id:       sh.gharari@gmail.com
     @ license:                 Apache2
 
-    This function gets lat and lon in one dimension and returns a 2D matrix of that lat and lon
+    This function gets lat and lon in one-dimension and returns a two-dimensional matrix of that lat and lon
     input for creating shapefile
 
     Arguments
@@ -64,12 +64,9 @@ def lat_lon_SHP(lat, lon, box):
 
     # itterating to create the shapes of the result shapefile
     for i in range(1, idx[0] - 1):
-
         for j in range(1, idx[1] - 1):
-
             if lat[i, j] > box[0] and lat[i, j] < box[1] and lon[i, j] > box[
-                    2] and lon[i, j] < box[3]:
-
+                    2] and lon[i, j] < box[3]: # checking is lat and lon is located inside the provided box
                 # Creating the lat of the shapefile
                 Lat_Up = (lat[i - 1, j] + lat[i, j]) / 2
                 Lat_UpRright = (lat[i - 1, j] + lat[i - 1, j + 1] +
@@ -104,7 +101,7 @@ def lat_lon_SHP(lat, lon, box):
 
                 # putting the polygone into the shape file
                 result.loc[m, 'geometry'] = polys
-                result.loc[m, 'ID'] = m + 1.00  # inserting the couter
+                result.loc[m, 'ID'] = m + 1.00  # inserting the couter, ID
                 result.loc[m, 'lat'] = lat[i, j]  # inserting the lat
                 result.loc[m, 'lon'] = lon[i, j]  # inserting the lon
 
@@ -115,7 +112,7 @@ def lat_lon_SHP(lat, lon, box):
     return result
 
 
-def NetCDF_SHP_lat_lon(name_of_nc, box, name_of_lat, name_of_lon):
+def NetCDF_SHP_lat_lon(name_of_nc, box, name_of_lat_var, name_of_lon_var):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -123,7 +120,10 @@ def NetCDF_SHP_lat_lon(name_of_nc, box, name_of_lat, name_of_lon):
     @lisence:                  Apache2
 
     This function reads a nc file with 1D or 2D lat and lon
-        name_of_nc: name of the nc file and
+        name_of_nc: name of the nc file
+        box:the defined box for making the shp file
+        name_of_lat_var:
+        name_of_lon_var:
     output:
         result: a shapefile that correspond to the 2D lat and lon
     """
@@ -131,10 +131,10 @@ def NetCDF_SHP_lat_lon(name_of_nc, box, name_of_lat, name_of_lon):
     dataset = xr.open_dataset(name_of_nc, decode_times=False)
 
     # reading the lat and lon and converting them to np.array
-    lat = dataset[name_of_lat].data
-    lon = dataset[name_of_lon].data
+    lat = dataset[name_of_lat_var].data
+    lon = dataset[name_of_lon_var].data
 
-    # check if lat and lon are 1 D, if yes then they should be converted to 2D lat and lon
+    # check if lat and lon are 1 D, if yes then they should be converted to 2D lat and lon WARNING only for case 1 and 2
     if len(lat.shape) == 1 and len(lon.shape) == 1:
         lat, lon = lat_lon_2D(lat, lon)
 
@@ -209,9 +209,11 @@ def intersection_shp(shp_1, shp_2):
     #return shp_1, shp_2
     return result
 
-
-def read_value_lat_lon_nc(lat, lon, name_of_nc, name_of_variable,
-                          name_of_time_dim, name_of_lat, name_of_lon):
+def read_value_lat_lon_nc(case,
+                          lat_target, lon_target, name_of_nc,
+                          name_of_variable, name_of_time_dim,
+                          name_of_lat_dim, name_of_lon_dim,
+                          name_of_lat_var, name_of_lon_var):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -225,11 +227,19 @@ def read_value_lat_lon_nc(lat, lon, name_of_nc, name_of_variable,
     it should be changed accordingly
 
     input:
-        lon: lon value [1,]
-        lat: lat value [1,]
+        case: value [1,]
+            1 is for 3-dimensional variable with 1-dimentional lat and lon
+            2 is for 3-dimensional varibale with 2-dimentional lat and lon
+            3 is for 2-dimensional variable with 1-dimentional lat and lon (time series)
+        lon_target: lon value [1,]
+        lat_target: lat value [1,]
         name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
         name_of_variable: name of the varibale, string
         name_of_time_dim: name of time dimension, string
+        name_of_lat_dim: name of lat dimension, string
+        name_of_lon_dim: name of lon dimension, string
+        name_of_lat_var: name of lat variable, string
+        name_of_lon_var: name of lon variable, string
 
     output:
         agg_data: a 1-D array of data
@@ -238,21 +248,85 @@ def read_value_lat_lon_nc(lat, lon, name_of_nc, name_of_variable,
     names_all.sort()
     data = None
 
-    select_dictionary = {name_of_lat: lat, name_of_lon: lon}
-
-    # for to read on lat and lon given
+    # for to read on variouse nc files for target lat lon
     for names in names_all:
-        # open nc file to read
-        # opening the data set by xr package
+        
         da = xr.open_dataset(names, decode_times=False)
+        
+        # case 1, the varibale is 3-dimensional and lat and lon are one-dimnesional
+        if case ==1:
+            # finding the index for the lat for target_lat
+            da_lat = da[name_of_lat_var] # reading the lat variable
+            temp = np.array(abs(da_lat-lat_target)) # finding the distance to target_lat
+            index_target_lat = np.array([temp.argmin()]) # finding the closest index to target_lat
+            
+            # finding the index for the lon for target_lon
+            da_lon = da[name_of_lon_var] # reading the lon variable
+            temp = np.array(abs(da_lon-lon_target)) # finding the distnace to target_lon
+            index_target_lon = np.array([temp.argmin()]) # finding the closest index to target_lon
+            
+            # making sure that the lat and lon are only one value and not two
+            index_target_lon = index_target_lon[0]
+            index_target_lat = index_target_lat[0]
+            
+            # porder of dimensions for the target variable
+            dataset = da[name_of_variable]
+            order_time_dim = dataset.dims.index(name_of_time_dim)
+            order_lat_dim = dataset.dims.index(name_of_lat_dim)
+            order_lon_dim = dataset.dims.index(name_of_lon_dim)
+            
+            if order_time_dim == 0: # such as the varibaele dimension is time, lat, lon
+                data_temp = dataset [:,index_target_lat,index_target_lon]
+            if order_time_dim == 2: # such as the varibaele dimension is lon, lat, time
+                data_temp = dataset [index_target_lon,index_target_lat,:]
 
+        # case 2, the varibale is 3-dimensional and lat and lon are 2-dimentional such as rotated lat lon
+        if case ==2:
+            # finding the index for the lat
+            da_lat = da[name_of_lat_var]
+            da_lon = da[name_of_lon_var]
+            temp = np.array(abs(da_lat-lat_target)+abs(da_lon-lon_target))
+            ind = np.unravel_index(np.argmin(temp, axis=None), temp.shape)
+            ind = np.array(ind)
+            
+            # order of dimensions for the target variable
+            dataset = da[name_of_variable]
+            order_time_dim = dataset.dims.index(name_of_time_dim)
+            order_lat_dim = dataset.dims.index(name_of_lat_dim)
+            order_lon_dim = dataset.dims.index(name_of_lon_dim)
+            
+            if order_time_dim == 0: # such as the varibaele dimension is time, lat, lon
+                index_target_lat = ind[0]
+                index_target_lon = ind[1]
+                data_temp = dataset [:,index_target_lat,index_target_lon]
+            if order_time_dim == 2: # such as the varibaele dimension is lon, lat, time
+                index_target_lat = ind[1]
+                index_target_lon = ind[0]
+                data_temp = dataset [index_target_lon,index_target_lat,:]
+
+        # case 3, the varibale is 2-dimnesional and lat and lon are 1-dimensional such as n time or time n
+        if case ==3:
+            da_lat = da[name_of_lat_var]
+            da_lon = da[name_of_lon_var]
+            temp = np.array(abs(da_lat-lat_target)+abs(da_lon-lon_target))
+            ind = np.unravel_index(np.argmin(temp, axis=None), temp.shape)
+            ind = np.array(ind)
+            ind = ind[0]
+            
+            # order of dimensions for the target variable
+            dataset = da[name_of_variable]
+            order_time_dim = dataset.dims.index(name_of_time_dim)
+            
+            if order_time_dim == 0: # such as the varibaele dimension is time, n
+                index_target_n = ind
+                data_temp = dataset [:,index_target_n]
+            if order_time_dim == 1: # such as the varibaele dimension is n, time
+                index_target_n = ind
+                data_temp = dataset [index_target_n,:]
+        
         # getting the length of time dimension
         time_steps = da.dims[name_of_time_dim]
-
-        # read the data given a lat, lon, and variable names,
-        data_temp = da[name_of_variable].sel(
-            select_dictionary, method='nearest')
-
+        
         # put the read data into the data_temp
         data_temp = np.array(data_temp)
         data_temp = data_temp.reshape((time_steps, ))
@@ -262,11 +336,16 @@ def read_value_lat_lon_nc(lat, lon, name_of_nc, name_of_variable,
             data = np.append(data, data_temp)
         else:
             data = data_temp
+            
     return data
 
 
-def area_ave(lat, lon, w, name_of_nc, name_of_variable, name_of_time_dim,
-             name_of_lat, name_of_lon):
+def area_ave(case,
+             lat, lon, w,
+             name_of_nc, name_of_variable,
+             name_of_time_dim,
+             name_of_lat_dim, name_of_lon_dim,
+             name_of_lat_var, name_of_lon_var):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -279,21 +358,26 @@ def area_ave(lat, lon, w, name_of_nc, name_of_variable, name_of_time_dim,
     it should be changed accordingly
 
     input:
-        lon: lon value [n,]
-        lat: lat value [n,]
-        w: weight [n,]
-        name_of_nc: full or part of nc file(s) name including nc, string,
-            example 'XXX/*01*.nc'
+        lon: lon value [n,] target value to read from the nc file
+        lat: lat value [n,] target values to read from the nc file
+        w: weight [n,] weigth of each target values to read from the nc file
+        name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
         name_of_variable: name of the varibale, string
         name_of_time_dim: name of time dimension, string
+        name_of_lat_dim: name of lat dimension, string
+        name_of_lon_dim: name of lon dimension, string
+        name_of_lat_var: name of lat variable, string
+        name_of_lon_var: name of lon variable, string
     output:
-        agg_data: a 1-D array of data
+        data: a 1-D array of data
     """
-    for i in range(0, len(lat)):
-        data_temp = read_value_lat_lon_nc(lat.iloc[i], lon.iloc[i], name_of_nc,
+    for i in range(0, len(lat)): # itterate over target values
+        data_temp = read_value_lat_lon_nc(case,
+                                          lat.iloc[i], lon.iloc[i], name_of_nc,
                                           name_of_variable, name_of_time_dim,
-                                          name_of_lat, name_of_lon)
-        if i is 0:
+                                          name_of_lat_dim, name_of_lon_dim,
+                                          name_of_lat_var, name_of_lon_var)
+        if i is 0: # multiply the read value with their weight and sum
             data = data_temp * w.iloc[i]
         else:
             data = data + data_temp * w.iloc[i]
@@ -379,10 +463,7 @@ def write_netcdf(nc_file_name, variable_data, variable_name, varibale_unit,
         ID_varid[:] = ID_data
 
         # Variable
-        data_varid = ncid.createVariable(variable_name, 'f8', (
-            'n',
-            'time',
-        ))
+        data_varid = ncid.createVariable(variable_name, 'f8', ('n','time', ))
         # Attributes
         data_varid.long_name = varibale_long_name
         data_varid.units = varibale_unit
