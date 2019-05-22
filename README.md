@@ -2,6 +2,6 @@
 
 # Candex: CAtchment NetcDf EXtractor
 This package allows you to extract and aggregate the relevant values from a
-cfconventions compliant netcdf files given a certain shapefile.
+cfconventions compliant netcdf files given shapefiles.
 
 
