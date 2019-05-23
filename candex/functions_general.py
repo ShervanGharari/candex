@@ -212,8 +212,8 @@ def intersection_shp(shp_1, shp_2):
 def read_value_lat_lon_nc(case,
                           lat_target, lon_target, name_of_nc,
                           name_of_variable, name_of_time_dim,
-                          name_of_lat_dim, name_of_lon_dim,
-                          name_of_lat_var, name_of_lon_var):
+                          name_of_lat_var, name_of_lon_var,
+                          name_of_lat_dim, name_of_lon_dim):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
