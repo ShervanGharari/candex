@@ -111,7 +111,11 @@ def lat_lon_SHP(lat, lon, box, correct_360):
                 result.loc[m, 'geometry'] = polys
                 result.loc[m, 'ID'] = m + 1.00  # inserting the couter, ID
                 result.loc[m, 'lat'] = lat[i, j]  # inserting the lat
-                result.loc[m, 'lon'] = lon[i, j]  # inserting the lon
+                if correct_360 is True:
+                    result.loc[m, 'lon'] = lon[i, j]+360  # inserting the lon
+                if correct_360 is False:
+                    result.loc[m, 'lon'] = lon[i, j]  # inserting the lon
+                    
 
                 # adding one to the couter
                 m = m + 1.00
@@ -397,7 +401,7 @@ def area_ave(case,
     return data
 
 
-def box(name_of_shp):
+def box(name_or_singleframe_shp):
     """
     @ author:                  Shervan Gharari
     @ Github:                  ./shervangharari/repository
@@ -411,10 +415,17 @@ def box(name_of_shp):
     output:
         box: which return [minlat maxlat minlon maxlon]
     """
-    shp = gpd.read_file(name_of_shp)
+    if type(name_or_singleframe_shp) is str:
+        shp = gpd.read_file(name_or_singleframe_shp)
+    else:
+        shp = name_or_singleframe_shp
+    # checking if dataframe has only one row otherwise stop
+    if shp.shape[0] > 1:
+    #    raise Exception('the dataframe in the box function has more than one row')
+        print('WARNING: your shapefile has more than one value! in box funcitons')
     shp['geometry'] = shp.geometry.buffer(1)  # adding a buffer of 1 degree
     A = shp.bounds
-    box = np.array([A.miny, A.maxy, A.minx, A.maxx])
+    box = np.array([A.miny.min(), A.maxy.max(), A.minx.min(), A.maxx.max()])
     return box
 
 
