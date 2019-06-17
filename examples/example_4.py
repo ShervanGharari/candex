@@ -1,6 +1,3 @@
-# example for many shapefile 4
-nc_name = '//datastore/GLOBALWATER/giws_research_water_share/ClimateForcing_Data/\
-ClimateForcing_WFDEI/WFDEI_05d24hr/Tair_daily_WFDEI/*2010*.nc' # the local directory should be copied and pasted here.
 """
 @ author:                  Shervan Gharari
 @ Github:                  ./shervangharari/repository
@@ -9,27 +6,20 @@ ClimateForcing_WFDEI/WFDEI_05d24hr/Tair_daily_WFDEI/*2010*.nc' # the local direc
 This is an example to read values for a shapefile that constains many shapes
 """
 
-shp_name = 'F:/Intercomparison/VIC_GRU/Erie_subwatershed/4_LEB_boundary_subwatershed.shp'
+# example for many shapefile 4
+nc_name = 'local_dir/*2010*.nc' # the local directory should be copied and pasted here.
+
+
+shp_name = 'local_dir/4_LEB_boundary_subwatershed.shp'
 shp_1 = gpd.read_file(shp_name)
 shp_1.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
-shp_1.plot(facecolor='none', edgecolor='k')
-plt.savefig('C:/Users/shg096/Dropbox/candex/example_4/basin.jpg')
 
 box_value = box (shp_1)
-shp_2 = NetCDF_SHP_lat_lon('//datastore/GLOBALWATER/giws_research_water_share/\
-ClimateForcing_Data/ClimateForcing_WFDEI/WFDEI_05d24hr/Rainf_daily_WFDEI_CRU/Rainf_daily_WFDEI_CRU_201612.nc',\
-                           box_value,'lat','lon',False)
+shp_2 = NetCDF_SHP_lat_lon('local_dir/Rainf_daily_WFDEI_CRU_201612.nc',box_value,'lat','lon',False)
 shp_2.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
-shp_2.plot(facecolor='none', edgecolor='k')
-plt.savefig('C:/Users/shg096/Dropbox/candex/example_4/netcdf_shp.jpg')
-
 
 shp_int = intersection_shp (shp_1, shp_2)
-shp_int.plot(facecolor='none', edgecolor='k')
-plt.savefig('C:/Users/shg096/Dropbox/candex/example_4/intersection.jpg')
 
-print(shp_int)
-    
 IDs_from_int = np.unique(shp_int['S_1_OBJECTID'])
 
 data_all = None
