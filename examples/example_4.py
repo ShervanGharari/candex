@@ -1,6 +1,14 @@
 # example for many shapefile 4
 nc_name = '//datastore/GLOBALWATER/giws_research_water_share/ClimateForcing_Data/\
 ClimateForcing_WFDEI/WFDEI_05d24hr/Tair_daily_WFDEI/*2010*.nc' # the local directory should be copied and pasted here.
+"""
+@ author:                  Shervan Gharari
+@ Github:                  ./shervangharari/repository
+@ author's email id:       sh.gharari@gmail.com
+@ license:                 Apache2
+This is an example to read values for a shapefile that constains many shapes
+"""
+
 shp_name = 'F:/Intercomparison/VIC_GRU/Erie_subwatershed/4_LEB_boundary_subwatershed.shp'
 shp_1 = gpd.read_file(shp_name)
 shp_1.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
