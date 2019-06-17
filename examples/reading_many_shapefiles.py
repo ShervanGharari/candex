@@ -1,50 +1,43 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr  5 02:17:44 2019
+# example for many shapefile 4
+nc_name = '//datastore/GLOBALWATER/giws_research_water_share/ClimateForcing_Data/\
+ClimateForcing_WFDEI/WFDEI_05d24hr/Tair_daily_WFDEI/*2010*.nc' # the local directory should be copied and pasted here.
+shp_name = 'F:/Intercomparison/VIC_GRU/Erie_subwatershed/4_LEB_boundary_subwatershed.shp'
+shp_1 = gpd.read_file(shp_name)
+shp_1.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
+shp_1.plot(facecolor='none', edgecolor='k')
+plt.savefig('C:/Users/shg096/Dropbox/candex/example_4/basin.jpg')
 
-@author: shg096
-"""
-import glob
-import geopandas
-import numpy as np
-import pandas as pd
-import xarray as xr
-from shapely.geometry import Polygon
-import netCDF4 as nc4
-import time
-from candex import box, NetCDF_SHP_lat_lon, intersection_shp, area_ave, write_netcdf
+box_value = box (shp_1)
+shp_2 = NetCDF_SHP_lat_lon('//datastore/GLOBALWATER/giws_research_water_share/\
+ClimateForcing_Data/ClimateForcing_WFDEI/WFDEI_05d24hr/Rainf_daily_WFDEI_CRU/Rainf_daily_WFDEI_CRU_201612.nc',\
+                           box_value,'lat','lon',False)
+shp_2.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
+shp_2.plot(facecolor='none', edgecolor='k')
+plt.savefig('C:/Users/shg096/Dropbox/candex/example_4/netcdf_shp.jpg')
 
-name = 'C:/Users/shg096/Dropbox/Individual_Shape_Meuse/Individual_Shape_Meuse/**/*.shp'
-names_all = glob.glob(name)
-names_all.sort()
-print(names_all)
 
-nc_name = '//datastore/GLOBALWATER/giws_research_water_share/ClimateForcing_Data/ClimateForcing_WFDEI/WFDEI_05d24hr/Tair_daily_WFDEI/*199*.nc'
+shp_int = intersection_shp (shp_1, shp_2)
+shp_int.plot(facecolor='none', edgecolor='k')
+plt.savefig('C:/Users/shg096/Dropbox/candex/example_4/intersection.jpg')
 
-i = 1
+print(shp_int)
     
-for name in names_all:
-    shp_1 = geopandas.read_file(name) # reading each shapefile one by one...
-    box_values = box (name)
-    #assuming the netcdf lat lon are not changing and equals to the first netcdf file
-    shp_2 = NetCDF_SHP_lat_lon ('//datastore/GLOBALWATER/giws_research_water_share/ClimateForcing_Data/ClimateForcing_WFDEI/WFDEI_05d24hr/Rainf_daily_WFDEI_CRU/Rainf_daily_WFDEI_CRU_201612.nc',box_values,'lat','lon')
-    shp_int = intersection_shp (shp_1, shp_2)
-    data = area_ave (shp_int.S_2_lat, shp_int.S_2_lon, shp_int.AREA_PER_1, nc_name,'Tair','tstep','lat','lon')
+IDs_from_int = np.unique(shp_int['S_1_OBJECTID'])
+
+data_all = None
+
+for i in IDs_from_int:
     
-    ## netcdf wrting...
-    nc_file_name = 'C:/Users/shg096/Dropbox/test'+str(i)+'.nc'
-    variable_data = data
-    variable_name = 'T_02'
-    varibale_unit = 'K'
-    varibale_long_name = 'surface temprature at 2 meters'
-    lon_data = shp_1.LONG.iloc[0]
-    lat_data = shp_1.LAT.iloc[0]
-    ID_data = shp_1.ID.iloc[0]
-    variable_time = np.arange(0,data.size)
-    starting_date_string_and_units = 'days since 1990-01-01 00:00:00'
+    shp_temp = shp_int.loc[shp_int['S_1_OBJECTID'] == i]
     
-    write_netcdf (nc_file_name, variable_data, variable_name, varibale_unit, varibale_long_name,
-                  lon_data, lat_data, ID_data,
-                  variable_time, starting_date_string_and_units)
-    
-    i = i + 1;
+    lat = np.array(shp_temp.S_2_lat)
+    lon = np.array(shp_temp.S_2_lon)
+    W   = np.array(shp_temp.AP1N)
+
+    case = 1
+    data = area_ave (case, lat, lon, W,\
+                     nc_name,'Tair','tstep','lat','lon','lat','lon')
+    if data_all is not None:
+        data_all = np.vstack((data_all, data))
+    else:
+        data_all = data
