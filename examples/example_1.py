@@ -1,6 +1,6 @@
 """
 @ author:                  Shervan Gharari
-@ Github:                  ./shervangharari/candex
+@ Github:                  https://github.com/ShervanGharari/candex
 @ author's email id:       sh.gharari@gmail.com
 @ license:                 Apache2
 """
