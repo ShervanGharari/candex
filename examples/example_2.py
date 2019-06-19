@@ -14,7 +14,7 @@ print(shp_1)
 print(shp_1.crs)
 shp_1.crs = {'init': 'epsg:4326'} # setting the cordinate
 
-box_values = box (shp_name)
+box_values = box (shp_name,1)
 
 shp_2 = NetCDF_SHP_lat_lon(nc_name,box_values,'latitude','longitude', False)
 # shp_2 = NetCDF_SHP_lat_lon(nc_name,box_values,'latitude','longitude', True)
