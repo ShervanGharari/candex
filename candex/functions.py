@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 def lat_lon_2D(lat, lon):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
     @ license:                 Apache2
 
@@ -45,17 +45,26 @@ def lat_lon_2D(lat, lon):
 def lat_lon_SHP(lat, lon, box_values, correct_360):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
     @license:                  Apache2
 
     This function gets a 2-D lat and lon and return the shapefile given the lat and lon matrices
-    input:
-        lat: the 2D matrix of lat_2D [n,m,]
-        lon: the 2D matrix of lon_2D [n,m,]
-        box: a 1D array [minlat, maxlat, minlon, maxlon]
-    output:
-        result: a shapefile with (n-2)*(m-2) elements depicting the provided 2-D lat and lon values
+    The function return a shapefile within the box_values specify by the model simulation.
+    correct_360 is True, then the values of more than 180 for the lon are converted to negative lon
+    correct_360 is False, then the cordinates of the shapefile remain in 0 to 360 degree
+    The function remove the first, last rows and colomns
+    
+    Arguments
+    ---------
+    lat: the 2D matrix of lat_2D [n,m,]
+    lon: the 2D matrix of lon_2D [n,m,]
+    box_values: a 1D array [minlat, maxlat, minlon, maxlon]
+    correct_360: logical, True or Flase
+    
+    Returns
+    -------
+    result: a shapefile with (n-2)*(m-2) elements depicting the provided 2-D lat and lon values
     """
     # getting the shape of the lat and lon (assuming that they have the same shape [n,m,])
     idx = lat.shape
@@ -129,17 +138,24 @@ def lat_lon_SHP(lat, lon, box_values, correct_360):
 def NetCDF_SHP_lat_lon(name_of_nc, box_values, name_of_lat_var, name_of_lon_var, correct_360):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
-    @lisence:                  Apache2
+    @license:                  Apache2
 
-    This function reads a nc file with 1D or 2D lat and lon
-        name_of_nc: name of the nc file
-        box:the defined box for making the shp file
-        name_of_lat_var:
-        name_of_lon_var:
-    output:
-        result: a shapefile that correspond to the 2D lat and lon
+    This function gets a NetCDF file the assosiated shapefile given the cordination of a given box
+    if correct_360 is True then the code convert the lon values more than 180 to negative lon
+    
+    Arguments
+    ---------
+    name_of_nc: string, the name of the nc file
+    box_values: the box to limit to a specific domain
+    name_of_lat_var: string, the name of the variable lat
+    name_of_lon_var: string, the name of the variable lon
+    correct_360: logical, True or Flase
+    
+    Returns
+    -------
+    result: a shapefile for the NetCDF file
     """
     # open the nc file to read
     dataset = xr.open_dataset(name_of_nc, decode_times=False)
@@ -164,17 +180,28 @@ def NetCDF_SHP_lat_lon(name_of_nc, box_values, name_of_lat_var, name_of_lon_var,
 def intersection_shp(shp_1, shp_2):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 Apache2
+    @license:                  Apache2
 
-    This function finds the intersection of two shapefiles and calculates their intersection shapes and area and the
-    shared percentages.
-    input:
-        shp_1: the first shapefile
-        shp_2: the second shapefile
-    output:
-        result: a shapefile which is the intersect of shp_1 shp_2
+    This fucntion intersect two shapefile. It keeps the fiels from the first and second shapefiles (identified by S_1_ and 
+    S_2_). It also creats other field including AS1 (area of the shape element from shapefile 1), IDS1 (an arbitary index
+    for the shapefile 1), AS2 (area of the shape element from shapefile 1), IDS2 (an arbitary index for the shapefile 1), 
+    AINT (the area of teh intersected shapes), AP1 (the area of the intersected shape to the shapes from shapefile 1),
+    AP2 (the area of teh intersected shape to the shapefes from shapefile 2), AP1N (the area normalized in the case AP1
+    summation is not 1 for a given shape from shapefile 1, this will help to preseve mass if part of the shapefile are not 
+    intersected), AP2N (the area normalized in the case AP2 summation is not 1 for a given shape from shapefile 2, this
+    will help to preseve mass if part of the shapefile are not intersected)
+    
+    Arguments
+    ---------
+    shp1: geo data frame, shapefile 1
+    shp2: geo data frame, shapefile 2
+    
+    Returns
+    -------
+    result: a geo data frame that includes the intersected shapefile and area, percent and normalized percent of each shape
+    elements in another one
     """
     # Calculating the area of every shapefile (both should be in degree or meters)
     column_names = shp_1.columns
@@ -277,33 +304,32 @@ def read_value_lat_lon_nc(case,
                           name_of_lat_dim, name_of_lon_dim):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 Apache2
+    @license:                  Apache2
 
     This function funcitons read different grids and sum them up based on the
     weight provided to aggregate them over a larger area
-
-    IMPORTANT NOTICE: the function assume that the dimensions are lat and lon,
-    it should be changed accordingly
-
-    input:
-        case: value [1,]
+    
+    Arguments
+    ---------
+    case: value [1,]
             1 is for 3-dimensional variable with 1-dimentional lat and lon
             2 is for 3-dimensional varibale with 2-dimentional lat and lon
             3 is for 2-dimensional variable with 1-dimentional lat and lon (time series)
-        lon_target: lon value [1,]
-        lat_target: lat value [1,]
-        name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
-        name_of_variable: name of the varibale, string
-        name_of_time_dim: name of time dimension, string
-        name_of_lat_dim: name of lat dimension, string
-        name_of_lon_dim: name of lon dimension, string
-        name_of_lat_var: name of lat variable, string
-        name_of_lon_var: name of lon variable, string
-
-    output:
-        agg_data: a 1-D array of data
+    lat_target: lat value [1,]
+    lon_target: lon value [1,]
+    name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
+    name_of_variable: name of the varibale, string
+    name_of_time_dim: name of time dimension, string
+    name_of_lat_var: name of lat variable, string
+    name_of_lon_var: name of lon variable, string
+    name_of_lat_dim: name of lat dimension, string
+    name_of_lon_dim: name of lon dimension, string
+    
+    Returns
+    -------
+    data: a numpy array that has the read value of the NetCDF file for the lats, lons and weights
     """
     names_all = glob.glob(name_of_nc)
     names_all.sort()
@@ -409,29 +435,35 @@ def area_ave(case,
              name_of_lat_var, name_of_lon_var):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 Apache2
+    @license:                  Apache2
 
     This function funcitons read different grids and sum them up based on the
     weight provided to aggregate them over a larger area
-    IMPORTANT NOTICE: the function assume that the dimensions are lat and lon,
-    it should be changed accordingly
-
-    input:
-        lon: lon value [n,] target value to read from the nc file
-        lat: lat value [n,] target values to read from the nc file
-        w: weight [n,] weigth of each target values to read from the nc file
-        name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
-        name_of_variable: name of the varibale, string
-        name_of_time_dim: name of time dimension, string
-        name_of_lat_dim: name of lat dimension, string
-        name_of_lon_dim: name of lon dimension, string
-        name_of_lat_var: name of lat variable, string
-        name_of_lon_var: name of lon variable, string
-    output:
-        data: a 1-D array of data
+    
+    Arguments
+    ---------
+    case: value [1,]
+            1 is for 3-dimensional variable with 1-dimentional lat and lon
+            2 is for 3-dimensional varibale with 2-dimentional lat and lon
+            3 is for 2-dimensional variable with 1-dimentional lat and lon (time series)
+    lat: lat value [1,]
+    lon: lon value [1,]
+    w: wieght[1,]
+    name_of_nc: full or part of nc file(s) name including nc, string, example 'XXX/*01*.nc'
+    name_of_variable: name of the varibale, string
+    name_of_time_dim: name of time dimension, string
+    name_of_lat_dim: name of lat dimension, string
+    name_of_lon_dim: name of lon dimension, string
+    name_of_lat_var: name of lat variable, string
+    name_of_lon_var: name of lon variable, string
+    
+    Returns
+    -------
+    data: a numpy array that has the read value of the NetCDF file for the lats, lons and weights
     """
+    
     data = None
     #print(w, lat, lon)
     if lat.size ==1: # only one entry to the funciton (one lat, one lon and one W)
@@ -455,6 +487,7 @@ def area_ave(case,
     return data
     
     
+    # this part if a data frame is directly fed to the function
     #for i in range(0, len(lat)): # itterate over target values
     #    data_temp = read_value_lat_lon_nc(case,
     #                                      lat.iloc[i], lon.iloc[i], name_of_nc,
@@ -468,19 +501,21 @@ def area_ave(case,
     #return data
 
 
-def box(name_or_singleframe_shp):
+def box(name_or_singleframe_shp,buffer_value):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 Apache2
+    @license:                  Apache2
 
-    This function funcitons calculates the bounding box of a single shapefile
-    input:
-        name_of_shp: full or part of shp file(s) name including .shp, string,
-        example 'XXX/*01*.shp'
-    output:
-        box: which return [minlat maxlat minlon maxlon]
+    This function funcitons calculates the bounding box of a given shapefile
+    Arguments
+    ---------
+        name_or_singleframe_shp: full or part of shp file(s) name including .shp, string, or a geopandas data frame
+        buffer_value: buffer value in degrees or meters
+    Returns
+    -------
+        box_values: which return [minlat maxlat minlon maxlon]
     """
     if type(name_or_singleframe_shp) is str:
         shp_temp = gpd.read_file(name_or_singleframe_shp)
@@ -492,11 +527,8 @@ def box(name_or_singleframe_shp):
     if shp_temp.shape[0] > 1:
     #    raise Exception('the dataframe in the box function has more than one row')
         print('WARNING: your shapefile has more than one value! in box funcitons')
-    # shp_temp['geometry'] = shp_temp.geometry.buffer(1)  # adding a buffer of 1 degree this mess up things when readingdataframe 
     A = shp_temp.bounds
-    # box_values = np.array([A.miny.min(), A.maxy.max(), A.minx.min(), A.maxx.max()])
     # adding buffer manually
-    buffer_value = 1 # degree
     box_values = np.array([A.miny.min()-buffer_value, A.maxy.max()+buffer_value,\
                            A.minx.min()-buffer_value, A.maxx.max()+buffer_value])
     return box_values
@@ -508,28 +540,30 @@ def write_netcdf(nc_file_name, variable_data, variable_name, varibale_unit,
                  time_dim_length, n_dim_length):
     """
     @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
+    @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
-    @ license:                 Apache2
+    @license:                  Apache2
 
     This function takes in a single array of data with an ID and it lat and lon value and save it as nc file
-    input:
-        nc_file_name: the name of the nc file, string
-        variable_data: and array of varibale data [time,], with dimension time
-        variable_name: name of the varibale, string
-        varibale_unit: unit of the varibale, string
-        varibale_long_name: long name of the varibale,string, e.g. 'm'
-        lon_data: lon of the data
-        lat_data: lat of the data
-        ID_data: ID of the data such as basin ID or grid ID
-        variable_time: data varibale time
-        starting_date_string: the time reseference, string, 'days since 1900-01-01 00:00'
+    
+    Arguments
+    ---------
+    nc_file_name: the name of the file to be saved, string
+    variable_data: the values of the variable to be saved, np array [n,time]
+    variable_name: the name of the variable to be saved, string
+    varibale_unit: the name of the units to be saved, string
+    varibale_long_name: the long name of the varibale to be saved, string
+    lon_data: lon data [n,]
+    lat_data: lat data [n,]
+    ID_data: ID data [n,]
+    variable_time: the name of the varibale time, string
+    starting_date_string: the starting point of the NetCDF file "hours since 2010-01-01 00:00:00"
+    time_dim_length: the length of the time dimension [1,]
+    n_dim_length: the length of the n dimension [1,]
     """
 
     with nc4.Dataset(nc_file_name, "w", format="NETCDF4") as ncid:
         
-        
-
         dimid_N = ncid.createDimension('n', n_dim_length)  # only write one variable
         # dimid_T = ncid.createDimension('time', time_dim_length)
         dimid_T = ncid.createDimension('time', None)
@@ -575,77 +609,8 @@ def write_netcdf(nc_file_name, variable_data, variable_name, varibale_unit,
         ncid.Conventions = 'CF-1.6'
         ncid.License = 'The data were written by Shervan Gharari. Under Apache2.'
         ncid.history = 'Created ' + time.ctime(time.time())
-        ncid.source = 'Written by script from library of Shervan Gharari (https://github.com/ShervanGharari).'
+        ncid.source = 'Written by script from library of Shervan Gharari (https://github.com/ShervanGharari/candex).'
 
-        
-
-def shape_sub_sample (lat, lon, delta):
-    '''
-    @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
-    @ author's email id:       sh.gharari@gmail.com
-    @ license:                 Apache2
-
-    This function takes in a single array of data with an ID and it lat and lon value and save it as nc file
-    input:
-    lat [l,] the lat of source point
-    lon [l,] the lon of source point
-    delta [l,] the weight of the each point
-    '''
-    multi_polygons = None
-    for i in np.arange(len(lat)):
-        lat_c = lat [i]
-        lon_c = lon [i]
-        delta_c = delta [i]
-        TEMP = gpd.GeoSeries(Polygon([(lon_c-delta_c,lat_c-delta_c),(lon_c-delta_c,lat_c+delta_c),\
-                                      (lon_c+delta_c,lat_c+delta_c),(lon_c+delta_c,lat_c-delta_c)]))
-        if multi_polygons is None:
-            multi_polygons = TEMP
-        else:
-            multi_polygons = multi_polygons.union(TEMP)
-    result = gpd.GeoDataFrame({'geometry': multi_polygons})
-    return result
-
-def shape_sub_sample_multiple (lat_2D, lon_2D, lat_target, lon_target):
-    '''
-    @ author:                  Shervan Gharari
-    @ Github:                  ./shervangharari/repository
-    @ author's email id:       sh.gharari@gmail.com
-    @ license:                 Apache2
-
-    This function takes in a single array of data with an ID and it lat and lon value and save it as nc file
-    input:
-    this function tales in lat_2D and lon_2D and also the target mesh in a 1 to n series
-    lat_2D [n,m,]
-    lon_2D [n,m,]
-    lat_target [l,]
-    lon_target [l,]
-    '''
-    
-    shp_total = None
-    
-    for i in np.arange(len(lat_target)):
-        
-        distance = ((lat_2D - lat_target[i])**2 + (lon_2D - lon_target[i])**2)**0.5
-        distance = 1/(distance**3) # inverse distance to power 3
-        distance = distance / distance.sum()
-        
-        IN = distance > 0.01 # minimume distance and be changes, smaller will be put zero
-        lats = lat_2D[ np.where( IN == True ) ]
-        lons = lon_2D[ np.where( IN == True ) ]
-        weights = distance [ np.where( IN == True ) ]
-        weights = (weights**0.5)/100
-        print(lats, lons, weights)
-        
-        shp = shape_sub_sample (lats, lons, weights)
-        
-        if shp_total is None:
-            shp_total = shp
-        else:
-            # shp_total = shp_total.append(shp)
-            shp_total = gpd.GeoDataFrame( pd.concat( [shp_total,shp], ignore_index=True) )
-        
-    return shp_total
         
 def spatial_overlays(df1, df2, how='intersection', reproject=True):
     """Perform spatial overlay between two polygons.
