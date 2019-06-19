@@ -14,7 +14,8 @@ shp_name = 'local_dir/4_LEB_boundary_subwatershed.shp'
 shp_1 = gpd.read_file(shp_name)
 shp_1.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
 
-box_value = box (shp_1)
+box_value = box (shp_1,1)
+
 shp_2 = NetCDF_SHP_lat_lon('local_dir/Rainf_daily_WFDEI_CRU_201612.nc',box_value,'lat','lon',False)
 shp_2.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
 
