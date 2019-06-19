@@ -11,7 +11,7 @@ shp_name = 'local_dir/Bow.shp'
 shp_1 = gpd.read_file(shp_name)
 shp_1.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesn't exists
 
-box_values = box (shp_name)
+box_values = box (shp_name,1)
 
 ##
 shp_2 = NetCDF_SHP_lat_lon('//datastore/GLOBALWATER/giws_research_water_share/ClimateForcing_Data/ClimateForcing_WFDEI/WFDEI_05d24hr/Rainf_daily_WFDEI_CRU/Rainf_daily_WFDEI_CRU_201612.nc',box_values,'lat','lon',False)
