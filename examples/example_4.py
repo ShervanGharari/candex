@@ -1,9 +1,8 @@
 """
 @ author:                  Shervan Gharari
-@ Github:                  ./shervangharari/candex
+@ Github:                  https://github.com/ShervanGharari/candex
 @ author's email id:       sh.gharari@gmail.com
 @ license:                 Apache2
-This is an example to read values from a NetCDF file for a shapefile that constains many shapes
 """
 
 # example for many shapefile 4
