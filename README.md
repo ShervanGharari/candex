@@ -26,6 +26,6 @@ CANDEX is a collection of functions that allows extraction of the data from a Ne
 
 The pictures show mapping of the gridded averaged temparture for period for 2010 daily from the WFDEI dataset. The temrapture field is mapped to the subbasins of the Bow and Oldman river basin (derived by Matlab topotoolbox and hydrologically conditioned Hydroshed DEM).
 
-<img src="https://github.com/ShervanGharari/candex/blob/master/figures/general/temprature_grid.jpg" width="200">
+<img src="https://github.com/ShervanGharari/candex/blob/master/figures/general/temprature_grid.jpg" width="600">
 
-<img src="https://github.com/ShervanGharari/candex/blob/master/figures/general/temprature_grid.jpg" width="200">
+<img src="https://github.com/ShervanGharari/candex/blob/master/figures/general/temprature_subbasins.jpg" width="600">
