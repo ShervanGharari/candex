@@ -28,4 +28,6 @@ The pictures show mapping of the gridded averaged temparture for period for 2010
 
 ![image](https://github.com/ShervanGharari/candex/blob/master/figures/general/temprature_grid.jpg =24x48)
 
+<img src="https://github.com/ShervanGharari/candex/blob/master/figures/general/temprature_grid.jpg" width="48">
+
 ![image](https://github.com/ShervanGharari/candex/blob/master/figures/general/temprature_subbasin.jpg =24x48)
