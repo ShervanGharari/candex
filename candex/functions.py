@@ -619,7 +619,7 @@ def spatial_overlays(df1, df2, how='intersection', reproject=True):
     Implements several methods that are all effectively subsets of
     the union.
     
-    Ömer Özak
+    Omer Ozak
     ozak
     https://github.com/ozak
     https://github.com/geopandas/geopandas/pull/338
