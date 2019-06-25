@@ -4,7 +4,7 @@
 This package allows you to extract and aggregate the relevant values from a
 cfconventions compliant netcdf files given shapefiles.
 
-CANDEX is a collection of functions that allows extraction of the data from a NetCDF file for a given shapefile such as a basin, catchment. It can map gridded data or model output to any given shapefile and provide areas average for a target variable. CANDEX can:
+CANDEX is a collection of functions that allows extraction of the data from a NetCDF file for a given shapefile such as a basin, catchment. It can map gridded data or model output to any given shapefile and provide area average for a target variable. CANDEX can:
 
 1. [Read a regular lat/lon gridded data or model to any shapefile](https://github.com/ShervanGharari/candex/wiki/Example-1,-Case-1)
 2. [Read a rotate lat/lon gridded data or model to any shapefile](https://github.com/ShervanGharari/candex/wiki/Example-2,-Case-2)
