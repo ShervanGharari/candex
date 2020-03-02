@@ -9,7 +9,8 @@ import xarray as xr
 from shapely.geometry import Polygon
 # not neccessary for the function but for visualziation
 import matplotlib.pyplot as plt
-
+# additional packages for speed-up
+import shapefile # PyShp library
 
 def lat_lon_2D(lat, lon):
     """
@@ -42,15 +43,15 @@ def lat_lon_2D(lat, lon):
     return np.meshgrid(lat, lon)
 
 
-def lat_lon_SHP(lat, lon, box_values, correct_360):
+def lat_lon_SHP(lat, lon, box_values, correct_360, filename = 'noFileNameSpecified'):
     """
-    @ author:                  Shervan Gharari
+    @ author:                  Shervan Gharari, Wouter Knoben
     @ Github:                  https://github.com/ShervanGharari/candex
     @ author's email id:       sh.gharari@gmail.com
     @license:                  Apache2
 
     This function gets a 2-D lat and lon and return the shapefile given the lat and lon matrices
-    The function return a shapefile within the box_values specify by the model simulation.
+    The function creates a shapefile within the box_values specify by the model simulation.
     correct_360 is True, then the values of more than 180 for the lon are converted to negative lon
     correct_360 is False, then the cordinates of the shapefile remain in 0 to 360 degree
     The function remove the first, last rows and colomns
@@ -61,78 +62,94 @@ def lat_lon_SHP(lat, lon, box_values, correct_360):
     lon: the 2D matrix of lon_2D [n,m,]
     box_values: a 1D array [minlat, maxlat, minlon, maxlon]
     correct_360: logical, True or Flase
+    filename: file name for the shapefile that will be created. Default = 'noFileNameSpecified'
     
     Returns
     -------
-    result: a shapefile with (n-2)*(m-2) elements depicting the provided 2-D lat and lon values
+    nothing
+    
+    Creates
+    -------
+    filename: a shapefile with (n-2)*(m-2) elements depicting the provided 2-D lat and lon values
     """
+    
     # getting the shape of the lat and lon (assuming that they have the same shape [n,m,])
     idx = lat.shape
-    # preparing an empty shapefile
-    result = gpd.GeoDataFrame()
-    # preparing the m whcih is a couter for the shapefile arbitrary ID
-    m = 0.00
+    
     # making sure that the lon is less than 180
     if correct_360 is True:
         IN = lon>180 # index of more than 180
         lon[IN] = lon[IN]-360 # index of point with higher than are reduced to -180 to 0 instead
-        #print(lon)
 
-    # itterating to create the shapes of the result shapefile
-    for i in range(1, idx[0] - 1):
-        for j in range(1, idx[1] - 1):
-            if lat[i, j] > box_values[0] and lat[i, j] < box_values[1] and lon[i, j] > box_values[
-                    2] and lon[i, j] < box_values[3]: # checking is lat and lon is located inside the provided box
-                # Creating the lat of the shapefile
-                Lat_Up = (lat[i - 1, j] + lat[i, j]) / 2
-                Lat_UpRright = (lat[i - 1, j] + lat[i - 1, j + 1] +
-                                lat[i, j + 1] + lat[i, j]) / 4
-                Lat_Right = (lat[i, j + 1] + lat[i, j]) / 2
-                Lat_LowRight = (lat[i, j + 1] + lat[i + 1, j + 1] +
-                                lat[i + 1, j] + lat[i, j]) / 4
-                Lat_Low = (lat[i + 1, j] + lat[i, j]) / 2
-                Lat_LowLeft = (lat[i, j - 1] + lat[i + 1, j - 1] +
-                               lat[i + 1, j] + lat[i, j]) / 4
-                Lat_Left = (lat[i, j - 1] + lat[i, j]) / 2
-                Lat_UpLeft = (lat[i - 1, j - 1] + lat[i - 1, j] + lat[i, j - 1]
-                              + lat[i, j]) / 4
+    # create a new shapefile
+    with shapefile.Writer(filename) as w:
+        w = shapefile.Writer(filename)
+        w.autoBalance = 1 # turn on function that keeps file stable if number of shapes and records don't line up
+        w.field("ID",'N') # create (N)umerical attribute fields, integer
+        w.field("lat",'F',decimal=4) # float with 4 decimals
+        w.field("lon",'F',decimal=4)
+        m = 0 # start ID counter off at zero
 
-                # Creating the lon of the shapefile
-                Lon_Up = (lon[i - 1, j] + lon[i, j]) / 2
-                Lon_UpRright = (lon[i - 1, j] + lon[i - 1, j + 1] +
-                                lon[i, j + 1] + lon[i, j]) / 4
-                Lon_Right = (lon[i, j + 1] + lon[i, j]) / 2
-                Lon_LowRight = (lon[i, j + 1] + lon[i + 1, j + 1] +
-                                lon[i + 1, j] + lon[i, j]) / 4
-                Lon_Low = (lon[i + 1, j] + lon[i, j]) / 2
-                Lon_LowLeft = (lon[i, j - 1] + lon[i + 1, j - 1] +
-                               lon[i + 1, j] + lon[i, j]) / 4
-                Lon_Left = (lon[i, j - 1] + lon[i, j]) / 2
-                Lon_UpLeft = (lon[i - 1, j - 1] + lon[i - 1, j] + lon[i, j - 1]
-                              + lon[i, j]) / 4
-
-                # craeting the polygon given the lat and lon
-                polys = Polygon([(Lon_Up,Lat_Up),(Lon_UpRright,Lat_UpRright),\
-                                 (Lon_Right,Lat_Right),(Lon_LowRight,Lat_LowRight),\
-                                 (Lon_Low,Lat_Low),(Lon_LowLeft,Lat_LowLeft),\
-                                 (Lon_Left,Lat_Left),(Lon_UpLeft,Lat_UpLeft),\
-                                 (Lon_Up,Lat_Up)])
-
-                # putting the polygone into the shape file
-                result.loc[m, 'geometry'] = polys
-                result.loc[m, 'ID'] = m + 1.00  # inserting the couter, ID
-                result.loc[m, 'lat'] = lat[i, j]  # inserting the lat
-                if correct_360 is True:
-                    result.loc[m, 'lon'] = lon[i, j]+360  # inserting the lon, going back to the -180 to 180 standards
-                if correct_360 is False:
-                    result.loc[m, 'lon'] = lon[i, j]  # inserting the lon
+        # iterating to create the shapes of the result shapefile
+        for i in range(1, idx[0] - 1):
+            for j in range(1, idx[1] - 1):
+                
+                # empty the polygon variable
+                parts = []
+            
+                # update records
+                m += 1 # ID
+                center_lat = lat[i,j] # lat value of data point in source .nc file
+                if correct_360:
+                    center_lon = lon[i,j] + 360 # lon value of data point in source .nc file should be within [0,360]
+                else:
+                    center_lon = lon[i,j]      # lon vaue of data point in source .nc file is within [-180,180]           
+                
+                # checking if lat and lon are located inside the provided box
+                if lat[i, j] > box_values[0] and lat[i, j] < box_values[1] and lon[i, j] > box_values[
+                    2] and lon[i, j] < box_values[3]: 
                     
+                    # Creating the lat of the shapefile
+                    Lat_Up = (lat[i - 1, j] + lat[i, j]) / 2
+                    Lat_UpRright = (lat[i - 1, j] + lat[i - 1, j + 1] +
+                                    lat[i, j + 1] + lat[i, j]) / 4
+                    Lat_Right = (lat[i, j + 1] + lat[i, j]) / 2
+                    Lat_LowRight = (lat[i, j + 1] + lat[i + 1, j + 1] +
+                                    lat[i + 1, j] + lat[i, j]) / 4
+                    Lat_Low = (lat[i + 1, j] + lat[i, j]) / 2
+                    Lat_LowLeft = (lat[i, j - 1] + lat[i + 1, j - 1] +
+                                   lat[i + 1, j] + lat[i, j]) / 4
+                    Lat_Left = (lat[i, j - 1] + lat[i, j]) / 2
+                    Lat_UpLeft = (lat[i - 1, j - 1] + lat[i - 1, j] + lat[i, j - 1]
+                                  + lat[i, j]) / 4
 
-                # adding one to the couter
-                m = m + 1.00
+                    # Creating the lon of the shapefile
+                    Lon_Up = (lon[i - 1, j] + lon[i, j]) / 2
+                    Lon_UpRright = (lon[i - 1, j] + lon[i - 1, j + 1] +
+                                    lon[i, j + 1] + lon[i, j]) / 4
+                    Lon_Right = (lon[i, j + 1] + lon[i, j]) / 2
+                    Lon_LowRight = (lon[i, j + 1] + lon[i + 1, j + 1] +
+                                    lon[i + 1, j] + lon[i, j]) / 4
+                    Lon_Low = (lon[i + 1, j] + lon[i, j]) / 2
+                    Lon_LowLeft = (lon[i, j - 1] + lon[i + 1, j - 1] +
+                                    lon[i + 1, j] + lon[i, j]) / 4
+                    Lon_Left = (lon[i, j - 1] + lon[i, j]) / 2
+                    Lon_UpLeft = (lon[i - 1, j - 1] + lon[i - 1, j] + lon[i, j - 1]
+                                    + lon[i, j]) / 4
 
-    # returning the result
-    return result
+                    # creating the polygon given the lat and lon
+                    parts.append([(Lon_Up,Lat_Up),(Lon_UpRright,Lat_UpLeft), \
+                                  (Lon_Right,Lat_Left),(Lon_LowRight,Lat_LowLeft), \
+                                  (Lon_Low,Lat_Low),(Lon_LowLeft,Lat_LowRight), \
+                                  (Lon_Left,Lat_Right),(Lon_UpLeft,Lat_UpRright), \
+                                  (Lon_Up,Lat_Up)])
+                
+                    # store polygon
+                    w.poly(parts)
+                
+                    # update records for the polygon
+                    w.record(m, center_lat, center_lon)
+    return
 
 
 def NetCDF_SHP_lat_lon(name_of_nc, box_values, name_of_lat_var, name_of_lon_var, correct_360):
