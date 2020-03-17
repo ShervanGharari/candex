@@ -10,7 +10,7 @@
 nc_name = 'local_dir/*2010*.nc' # the local directory should be copied and pasted here.
 
 
-shp_name = 'local_dir/4_LEB_boundary_subwatershed.shp' @ the name of the shapefile with many shape
+shp_name = 'local_dir/4_LEB_boundary_subwatershed.shp' # the name of the shapefile with many shape
 shp_1 = gpd.read_file(shp_name) # reading the shapefile as a geopandas data frame
 shp_1.crs = {'init': 'epsg:4326'} # setting the cordinate system in case it doesnt exists
 
