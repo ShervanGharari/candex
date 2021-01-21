@@ -8,7 +8,7 @@ CANDEX is a collection of functions that allows extraction of the data from a Ne
 
 ## Speed and Efficiency
 
-Remapping of the entire north American domain from ERA5 wth resolution of 0.25 degree to 500,000 subbasin of MERIT-Hydro watershed for 7 variables in 1.2 seconds for one time step (the time varying from device to device and depending on the source netCDF files sizes and their temporal aggregation).
+Candex is very effcient as it uses pandas groupby functionality. Remapping of the entire north American domain from ERA5 wth resolution of 0.25 degree to 500,000 subbasins of MERIT-Hydro watershed for 7 variables in 1.2 seconds for one time step (the time varying from device to device and depending on the source netCDF files sizes and their temporal aggregation).
 
 ## Example
 
