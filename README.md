@@ -21,8 +21,8 @@ The pictures show mapping of the gridded averaged temperature for period for dai
 
 Temperature field in degree celsius for the grids of WFDEI data set
 
-<img src="./fig/Gird.png" width="1000">
+<img src="./fig/Gird.png" width="1500">
 
 Temperature field in degree celsius remapped for the sub-basin of Bow and Oldman River Basin
 
-<img src="./fig/Remapped.png" width="500">
+<img src="./fig/Remapped.png" width="1500">
