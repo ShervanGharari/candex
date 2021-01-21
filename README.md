@@ -29,7 +29,7 @@ The two figures show remapping of the gridded temperature from ERA5 data set to 
 
 <img src="./fig/Gird.png" width="2000">
 
-### Remapped temperature field to the subbasins
+### Remapped temperature field to the subbasins:
 
 <img src="./fig/Remapped.png" width="2000"> 
 
