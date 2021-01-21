@@ -16,6 +16,7 @@ Candex is very efficient as it uses pandas `groupby` functionality. Remapping of
 2. [Remap a rotate lat/lon gridded data or model to any shapefile](./candex/example_rotated_lat_lon.ipynb)
 3. Remap a irregular shapefile data, such as Thiessen polygon for example, to any shapefile such as sub-basin.
 4. Extract the data for multiple points (such as location of stations, cities, etc) from the grided or irregular data
+5. Resample to a different resolution using various interpolation technique (weights should be pre-calculated and fed to candex).
 
 ## The code can be used for the following purposes:
 
