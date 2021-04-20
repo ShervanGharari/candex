@@ -1,3 +1,6 @@
+ **⚠ ATTENTION: CANDEX is now part of EASYMORE python package**  
+CANDEX is now presented in a python package called EASYMORE (EArth SYstem MOdeling REmapper). EASYMORE is a user-friendly package that performs geospatial analysis including remapping of variables stored in NetCDF files from various shapes to various shapes (Thiessen polygons to subbasins). Examples of how to use install and use EASYMORE are provided at [EASYMORE GitHub page](https://github.com/ShervanGharari/EASYMORE).
+ 
  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2628350.svg)](https://doi.org/10.5281/zenodo.2628350)
 
 # CANDEX: CAtchment NetcDf EXtractor
